@@ -1,0 +1,6 @@
+{
+  "name": "HELPING HANDS",
+  "description": "A comprehensive community donation platform connecting generous donors with verified NGOs for seamless, transparent item donations, scheduled pickups, and impact tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
