@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getSupabase, isSupabaseConfigured } from '../lib/supabase';
+import heroDonationImage from '../assets/images/community_donation_hero_1790170466141.jpg';
 
 interface HomePageProps {
   navigate: (page: string) => void;
@@ -111,6 +112,29 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
             >
               How It Works
             </button>
+          </div>
+
+          {/* Prominent Hero Donation Image */}
+          <div className="pt-6 sm:pt-8 max-w-4xl mx-auto">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-700/60 shadow-2xl bg-slate-800/40 group">
+              <img
+                src={heroDonationImage}
+                alt="Community volunteers and donors sharing essential items and food with families in need"
+                className="w-full h-56 sm:h-72 md:h-96 object-cover object-center transform transition-transform duration-500 group-hover:scale-[1.01]"
+                loading="eager"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-6 sm:right-6 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-200">
+                <span className="font-semibold flex items-center gap-1.5 bg-slate-900/85 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-700/60 text-emerald-300">
+                  <HeartHandshake className="w-4 h-4 text-emerald-400" />
+                  Community Impact • 100% Direct Doorstep Pickups
+                </span>
+                <span className="hidden sm:inline-block bg-slate-900/85 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-700/60 text-slate-300">
+                  Verified DARPAN Non-Profit Partners
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Quick Real Stats Bar */}
