@@ -95,6 +95,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, navigate }) => {
               >
                 For NGOs
               </button>
+              <button
+                type="button"
+                onClick={() => navigate('dwm-analytics')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  currentPage === 'dwm-analytics'
+                    ? 'text-emerald-800 bg-emerald-50 ring-1 ring-emerald-200'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                DWM Analytics
+              </button>
             </nav>
 
             {/* Right-side Action Items */}
@@ -238,6 +249,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, navigate }) => {
               className="w-full text-left py-2 px-3 text-sm font-semibold rounded-lg text-slate-800 hover:bg-slate-50"
             >
               For NGOs
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                navigate('dwm-analytics');
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full text-left py-2 px-3 text-sm font-semibold rounded-lg text-emerald-800 bg-emerald-50/50 hover:bg-emerald-50"
+            >
+              DWM Analytics Dashboard
             </button>
 
             <div className="pt-2 border-t border-slate-200">

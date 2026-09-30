@@ -12,6 +12,7 @@ import { AdminLoginPage } from './pages/AdminLoginPage';
 import { UserDashboardPage } from './pages/UserDashboardPage';
 import { NGODashboardPage } from './pages/NGODashboardPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { DWMAnalyticsPage } from './pages/DWMAnalyticsPage';
 
 function MainApp() {
   const { user, isPlatformAdmin } = useAuth();
@@ -67,6 +68,8 @@ function MainApp() {
       case 'admin-dashboard':
         if (!isPlatformAdmin) return <AdminLoginPage navigate={navigate} />;
         return <AdminDashboardPage navigate={navigate} />;
+      case 'dwm-analytics':
+        return <DWMAnalyticsPage navigate={navigate} />;
       default:
         return <HomePage navigate={navigate} />;
     }

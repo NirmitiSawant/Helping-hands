@@ -18,6 +18,7 @@ import {
   ArrowRight,
   Shield,
   FileText,
+  BarChart3,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getSupabase } from '../lib/supabase';
@@ -208,6 +209,14 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ navigate
           </div>
 
           <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => navigate('dwm-analytics')}
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold transition-colors border border-emerald-600 cursor-pointer shadow-sm"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>DWM Analytics</span>
+            </button>
             <button
               type="button"
               onClick={fetchRealAdminData}

@@ -70,6 +70,15 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   For NGOs & Charities
                 </button>
               </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => navigate('dwm-analytics')}
+                  className="hover:text-white transition-colors text-emerald-400 font-semibold"
+                >
+                  DWM Analytics Dashboard
+                </button>
+              </li>
             </ul>
           </div>
 
