@@ -6,7 +6,6 @@ import {
   GitMerge,
   Cpu,
   BrainCircuit,
-  Sparkles,
   HelpCircle,
   RefreshCw,
   ChevronDown,
@@ -39,13 +38,11 @@ import {
   computeDonationTrend,
   runKMeansClustering,
   runHierarchicalClustering,
-  runAprioriMining,
   generateKeyInsights,
   computeNGOActivityMetrics,
   DataExplorationResult,
   KMeansResult,
   HierarchicalClusteringResult,
-  AprioriResult,
   DynamicInsight,
   NGOActivityMetric,
 } from '../lib/dwmAnalytics';
@@ -68,7 +65,6 @@ type TabType =
   | 'olap'
   | 'kmeans'
   | 'hierarchical'
-  | 'apriori'
   | 'insights';
 
 export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) => {
@@ -85,21 +81,6 @@ export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) 
   const [hasAttemptedLoad, setHasAttemptedLoad] = useState<boolean>(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [queryFailed, setQueryFailed] = useState<boolean>(false);
-
-  // Expandable Methodology Explanations (Professional Architecture & Concepts)
-  const [expandedExplainer, setExpandedExplainer] = useState<Record<string, boolean>>({
-    overview: false,
-    exploration: false,
-    olap: false,
-    kmeans: false,
-    hierarchical: false,
-    apriori: false,
-    insights: false,
-  });
-
-  const toggleExplainer = (key: string) => {
-    setExpandedExplainer((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
 
   // --------------------------------------------------------------------------
   // Data Fetching: Strictly READ-ONLY using Authenticated Admin Supabase Client
@@ -258,20 +239,11 @@ export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) 
   }, [ngos, donations]);
 
   // --------------------------------------------------------------------------
-  // 7. Apriori Association Mining State & computations
-  // --------------------------------------------------------------------------
-  const [minSupport, setMinSupport] = useState<number>(0.15);
-  const [minConfidence, setMinConfidence] = useState<number>(0.4);
-  const aprioriResult: AprioriResult = useMemo(() => {
-    return runAprioriMining(donations, minSupport, minConfidence);
-  }, [donations, minSupport, minConfidence]);
-
-  // --------------------------------------------------------------------------
-  // 8. Key Insights computations
+  // 7. Key Insights computations
   // --------------------------------------------------------------------------
   const keyInsights: DynamicInsight[] = useMemo(() => {
-    return generateKeyInsights(donations, ngos, donors, kmeansResult, aprioriResult);
-  }, [donations, ngos, donors, kmeansResult, aprioriResult]);
+    return generateKeyInsights(donations, ngos, donors, kmeansResult);
+  }, [donations, ngos, donors, kmeansResult]);
 
   // 1. Loading state during auth verification
   if (authLoading) {
@@ -506,8 +478,7 @@ export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) 
               { id: 'olap', label: '3. OLAP Explorer', icon: Layers },
               { id: 'kmeans', label: '4. K-Means', icon: BrainCircuit },
               { id: 'hierarchical', label: '5. Hierarchical', icon: GitMerge },
-              { id: 'apriori', label: '6. Apriori Mining', icon: Sparkles },
-              { id: 'insights', label: '7. Key Insights', icon: TrendingUp },
+              { id: 'insights', label: '6. Key Insights', icon: TrendingUp },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -652,34 +623,6 @@ export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) 
 
             {/* Chronological Donation Trend Line Chart */}
             <DonationTrendLineChart trend={donationTrend} />
-
-            {/* Conceptual Schema Architecture (Professional Description) */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <button
-                type="button"
-                onClick={() => toggleExplainer('overview')}
-                className="w-full flex items-center justify-between text-left text-xs font-bold text-slate-900"
-              >
-                <span className="flex items-center space-x-2">
-                  <HelpCircle className="w-4 h-4 text-emerald-600" />
-                  <span>Data Warehouse Architecture & Dimensional Schema Design</span>
-                </span>
-                {expandedExplainer.overview ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-
-              {expandedExplainer.overview && (
-                <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600 space-y-2 leading-relaxed">
-                  <p>
-                    <strong>Dimensional Modeling (Star Schema):</strong> In HELPING HANDS, operational records are modeled conceptually as an analytical star schema to support rapid aggregations across multiple perspectives:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li><strong>Fact Table:</strong> <code>public.donations</code> stores transactional event measurements (e.g., item quantities, status codes) and foreign key linkages.</li>
-                    <li><strong>Dimension Tables:</strong> <code>public.profiles</code> (Donor dimension where role = 'donor'), <code>public.ngos</code> (Fulfillment NGO partner dimension), and the Date/Time dimension (derived from <code>created_at</code> timestamps).</li>
-                    <li><strong>Dynamic Calculations:</strong> Every metric and visual chart is computed dynamically in-memory from verified Supabase records without artificial caching or simulated data.</li>
-                  </ul>
-                </div>
-              )}
-            </div>
           </div>
         )}
 
@@ -813,34 +756,6 @@ export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) 
                   </tbody>
                 </table>
               </div>
-            </div>
-
-            {/* Methodology Box: Data Exploration */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <button
-                type="button"
-                onClick={() => toggleExplainer('exploration')}
-                className="w-full flex items-center justify-between text-left text-xs font-bold text-slate-900"
-              >
-                <span className="flex items-center space-x-2">
-                  <HelpCircle className="w-4 h-4 text-emerald-600" />
-                  <span>Exploratory Data Analysis & Attribute Methodology</span>
-                </span>
-                {expandedExplainer.exploration ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-
-              {expandedExplainer.exploration && (
-                <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600 space-y-2 leading-relaxed">
-                  <p>
-                    <strong>Purpose:</strong> Data exploration analyzes the shape, quality, and statistical properties of data before feeding into learning algorithms.
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li><strong>Measures of Central Tendency:</strong> Mean (x̄) reflects average volume; Median resists skewness from large bulk donations.</li>
-                    <li><strong>Measures of Dispersion:</strong> Variance and Standard Deviation (σ) measure variance in quantity. Interquartile Range (IQR = Q3 - Q1) characterizes mid-50% spread.</li>
-                    <li><strong>Attribute Cardinality:</strong> High distinct count on categorical variables signals rich diversity in donation categories and geographic presence.</li>
-                  </ul>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -1000,34 +915,6 @@ export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) 
                 </div>
               )}
             </div>
-
-            {/* Explanation Box: K-Means Formulation */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <button
-                type="button"
-                onClick={() => toggleExplainer('kmeans')}
-                className="w-full flex items-center justify-between text-left text-xs font-bold text-slate-900"
-              >
-                <span className="flex items-center space-x-2">
-                  <HelpCircle className="w-4 h-4 text-emerald-600" />
-                  <span>How it works: K-Means Algorithmic Formulation & Convergence Mechanics</span>
-                </span>
-                {expandedExplainer.kmeans ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-
-              {expandedExplainer.kmeans && (
-                <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600 space-y-2 leading-relaxed">
-                  <p>
-                    <strong>Purpose:</strong> Unsupervised partition of N observation vectors into K clusters where each entity belongs to the cluster with the nearest mean (Euclidean distance).
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li><strong>Objective Function:</strong> Minimizes Sum of Squared Errors (SSE): J = Σ Σ ||x_i - μ_k||²</li>
-                    <li><strong>Input Features:</strong> 1) Total Donations Handled, 2) Completion Rate %, 3) Total Volume Quantity.</li>
-                    <li><strong>Silhouette Coefficient:</strong> Evaluates cohesion vs separation: s = (b - a) / max(a, b), where 'a' is mean intra-cluster distance and 'b' is nearest-cluster distance.</li>
-                  </ul>
-                </div>
-              )}
-            </div>
           </div>
         )}
 
@@ -1116,219 +1003,11 @@ export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) 
                 </div>
               )}
             </div>
-
-            {/* Explanation Box: Hierarchical Clustering */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <button
-                type="button"
-                onClick={() => toggleExplainer('hierarchical')}
-                className="w-full flex items-center justify-between text-left text-xs font-bold text-slate-900"
-              >
-                <span className="flex items-center space-x-2">
-                  <HelpCircle className="w-4 h-4 text-emerald-600" />
-                  <span>How it works: Agglomerative Hierarchical Clustering Architecture & Linkage Formulation</span>
-                </span>
-                {expandedExplainer.hierarchical ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-
-              {expandedExplainer.hierarchical && (
-                <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600 space-y-2 leading-relaxed">
-                  <p>
-                    <strong>Agglomerative (Bottom-Up):</strong> Starts with each NGO as an individual singleton cluster and progressively merges the closest pair according to a linkage criterion (Average Linkage - UPGMA).
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li><strong>Linkage Metric:</strong> D(A, B) = (1 / (|A|·|B|)) Σ Σ ||x - y||</li>
-                    <li><strong>Dendrogram Cut:</strong> Slicing the dendrogram horizontally at distance threshold 'd' yields discrete clusters without pre-specifying K in advance.</li>
-                  </ul>
-                </div>
-              )}
-            </div>
           </div>
         )}
 
         {/* ================================================================== */}
-        {/* TAB 6: APRIORI ASSOCIATION RULE MINING */}
-        {/* ================================================================== */}
-        {activeTab === 'apriori' && (
-          <div className="space-y-8">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">Apriori Association Rule Mining</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Discovers frequent itemsets and co-occurrence patterns across Category, Condition, City, and Status dimensions.
-                  </p>
-                </div>
-
-                {/* Threshold Sliders */}
-                <div className="flex flex-wrap items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                  <div className="flex items-center space-x-2 text-xs">
-                    <span className="font-bold text-slate-700">Min Support:</span>
-                    <input
-                      type="range"
-                      min={0.05}
-                      max={0.5}
-                      step={0.05}
-                      value={minSupport}
-                      onChange={(e) => setMinSupport(parseFloat(e.target.value))}
-                      className="w-20 cursor-pointer accent-emerald-700"
-                    />
-                    <span className="font-mono font-bold text-emerald-800">{Math.round(minSupport * 100)}%</span>
-                  </div>
-
-                  <div className="flex items-center space-x-2 text-xs">
-                    <span className="font-bold text-slate-700">Min Confidence:</span>
-                    <input
-                      type="range"
-                      min={0.2}
-                      max={0.9}
-                      step={0.05}
-                      value={minConfidence}
-                      onChange={(e) => setMinConfidence(parseFloat(e.target.value))}
-                      className="w-20 cursor-pointer accent-emerald-700"
-                    />
-                    <span className="font-mono font-bold text-emerald-800">{Math.round(minConfidence * 100)}%</span>
-                  </div>
-                </div>
-              </div>
-
-              {!aprioriResult.isApplicable ? (
-                <div className="p-6 rounded-xl bg-amber-50 border border-amber-200 text-center space-y-2">
-                  <AlertCircle className="w-8 h-8 text-amber-600 mx-auto" />
-                  <h4 className="text-xs font-bold text-amber-900 uppercase">Insufficient Transactional Data</h4>
-                  <p className="text-xs text-amber-800 max-w-lg mx-auto leading-relaxed">
-                    {aprioriResult.insufficientReason || 'At least 3 donation listings are required to extract meaningful association patterns.'}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* Mining Summary Stats */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <span className="text-[10px] font-bold uppercase text-slate-500">Total Baskets (Transactions)</span>
-                      <div className="text-2xl font-black text-slate-900 mt-1">{aprioriResult.totalTransactions}</div>
-                      <span className="text-[10px] text-slate-400">Modeled from donation attributes</span>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <span className="text-[10px] font-bold uppercase text-slate-500">Frequent Itemsets Found</span>
-                      <div className="text-2xl font-black text-indigo-700 mt-1">{aprioriResult.frequentItemsets.length}</div>
-                      <span className="text-[10px] text-slate-400">Meeting support ≥ {Math.round(minSupport * 100)}%</span>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <span className="text-[10px] font-bold uppercase text-slate-500">Strong Rules Extracted</span>
-                      <div className="text-2xl font-black text-emerald-700 mt-1">{aprioriResult.rules.length}</div>
-                      <span className="text-[10px] text-slate-400">Meeting confidence ≥ {Math.round(minConfidence * 100)}%</span>
-                    </div>
-                  </div>
-
-                  {/* Discovered Association Rules Table */}
-                  <div className="overflow-x-auto rounded-xl border border-slate-200">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200/80">
-                        <tr>
-                          <th className="py-2.5 px-4">Antecedent (LHS)</th>
-                          <th className="py-2.5 px-4 text-center">⇒</th>
-                          <th className="py-2.5 px-4">Consequent (RHS)</th>
-                          <th className="py-2.5 px-4">Support</th>
-                          <th className="py-2.5 px-4">Confidence</th>
-                          <th className="py-2.5 px-4">Lift</th>
-                          <th className="py-2.5 px-4">Correlation Assessment</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
-                        {aprioriResult.rules.length === 0 ? (
-                          <tr>
-                            <td colSpan={7} className="py-6 text-center text-slate-400">
-                              No association rules found with the current thresholds. Try decreasing min support or min confidence.
-                            </td>
-                          </tr>
-                        ) : (
-                          aprioriResult.rules.map((rule, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50/50">
-                              <td className="py-2.5 px-4 font-bold text-slate-900">{rule.antecedent.join(', ')}</td>
-                              <td className="py-2.5 px-4 text-center font-bold text-emerald-700">⇒</td>
-                              <td className="py-2.5 px-4 font-bold text-slate-900">{rule.consequent.join(', ')}</td>
-                              <td className="py-2.5 px-4 font-mono">{Math.round(rule.support * 100)}%</td>
-                              <td className="py-2.5 px-4 font-mono font-bold text-emerald-800">
-                                {Math.round(rule.confidence * 100)}%
-                              </td>
-                              <td className="py-2.5 px-4 font-mono font-bold text-indigo-700">{rule.lift}x</td>
-                              <td className="py-2.5 px-4">
-                                {rule.lift > 1.2 ? (
-                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                    Strong Positive Association
-                                  </span>
-                                ) : rule.lift > 1.0 ? (
-                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                                    Moderate Correlation
-                                  </span>
-                                ) : (
-                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">
-                                    Independent / Weak
-                                  </span>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Frequent Itemsets List */}
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                      Frequent Itemsets (L1 & L2)
-                    </h4>
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      {aprioriResult.frequentItemsets.map((fit, fi) => (
-                        <div key={fi} className="p-2 rounded bg-white border border-slate-200 shadow-2xs space-x-1.5 flex items-center">
-                          <span className="font-semibold text-slate-800">{fit.items.join(' + ')}</span>
-                          <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono text-[10px] font-bold">
-                            Supp: {Math.round(fit.support * 100)}% ({fit.supportCount})
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Explanation Box: Apriori Association Rules */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <button
-                type="button"
-                onClick={() => toggleExplainer('apriori')}
-                className="w-full flex items-center justify-between text-left text-xs font-bold text-slate-900"
-              >
-                <span className="flex items-center space-x-2">
-                  <HelpCircle className="w-4 h-4 text-emerald-600" />
-                  <span>How it works: Support, Confidence, Lift & Apriori Mechanics</span>
-                </span>
-                {expandedExplainer.apriori ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-
-              {expandedExplainer.apriori && (
-                <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600 space-y-2 leading-relaxed">
-                  <p>
-                    <strong>Apriori Principle:</strong> Any subset of a frequent itemset must also be frequent. If itemset X is infrequent, all supersets of X are instantly pruned.
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li><strong>Support(A ⇒ B) = P(A ∩ B):</strong> Percentage of total transactions containing both items.</li>
-                    <li><strong>Confidence(A ⇒ B) = P(B|A) = Support(A ∩ B) / Support(A):</strong> Likelihood that item B is present given item A.</li>
-                    <li><strong>Lift(A ⇒ B) = Confidence(A ⇒ B) / Support(B):</strong> Ratio of observed co-occurrence over expected independent chance. Lift &gt; 1 indicates genuine affinity.</li>
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ================================================================== */}
-        {/* TAB 7: KEY INSIGHTS */}
+        {/* TAB 6: KEY INSIGHTS */}
         {/* ================================================================== */}
         {activeTab === 'insights' && (
           <div className="space-y-8">
@@ -1402,44 +1081,6 @@ export const DWMAnalyticsPage: React.FC<DWMAnalyticsPageProps> = ({ navigate }) 
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Enterprise Summary Card */}
-            <div className="p-5 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-950 space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-900">
-                Executive Decision Support & Data Warehouse Architecture Summary
-              </h4>
-              <p className="text-xs leading-relaxed text-emerald-800">
-                This DWM Analytical Dashboard demonstrates complete data warehousing and mining integration for the <strong>HELPING HANDS</strong> social good platform. The system operates as a zero-write, non-invasive analytical layer directly over the Supabase production datastore, delivering real-time multidimensional slicing/dicing, descriptive profiling, cluster segmentation, and associative discovery.
-              </p>
-            </div>
-
-            {/* Explanation Box: Key Insights */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <button
-                type="button"
-                onClick={() => toggleExplainer('insights')}
-                className="w-full flex items-center justify-between text-left text-xs font-bold text-slate-900"
-              >
-                <span className="flex items-center space-x-2">
-                  <HelpCircle className="w-4 h-4 text-emerald-600" />
-                  <span>How it works: Business Intelligence & Decision Support Architecture</span>
-                </span>
-                {expandedExplainer.insights ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-
-              {expandedExplainer.insights && (
-                <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600 space-y-2 leading-relaxed">
-                  <p>
-                    <strong>Decision Support Systems (DSS):</strong> The objective of Data Warehousing & Mining is converting raw operational transactions into actionable strategy:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li><strong>Route Optimization:</strong> Identifying geographic hotspots (top donation cities) allows NGOs to batch logistics efficiently.</li>
-                    <li><strong>Targeted Outreach:</strong> Clustering active vs dormant NGOs informs the platform administrator on capacity allocation.</li>
-                    <li><strong>Inventory Forecasting:</strong> Association rules reveal correlated essentials (e.g. food rations + bulk volume) to prepare transport storage.</li>
-                  </ul>
-                </div>
-              )}
             </div>
           </div>
         )}
